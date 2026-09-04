@@ -39,8 +39,14 @@ function chip(label, sub, active, onClick) {
 }
 
 function syncConfirm() {
+  if (!isVerified) {
+    els.confirm.disabled = true;
+    els.confirm.textContent = "Booking locked — verification pending";
+    return;
+  }
   els.confirm.disabled = !(state.centreId && state.commodityId && state.slotId) || state.busy;
 }
+syncConfirm();
 
 /* --- crops --- */
 const { data: commodities } = await supabase.from("commodities").select("*").order("name");
@@ -123,6 +129,7 @@ function renderSlots() {
 
 /* --- confirm booking (book_token RPC, unchanged) --- */
 els.confirm.addEventListener("click", async () => {
+  if (!isVerified) return toast.error("Booking unlocks once an admin verifies your farmer details.");
   if (!state.centreId || !state.commodityId || !state.slotId) return;
   state.busy = true;
   els.confirm.disabled = true;
