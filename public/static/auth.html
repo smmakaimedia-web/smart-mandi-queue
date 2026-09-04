@@ -42,7 +42,7 @@
         <div class="grid2">
           <div>
             <label class="field-label" for="su-phone">Phone</label>
-            <input id="su-phone" type="tel" />
+            <input id="su-phone" type="tel" placeholder="+91XXXXXXXXXX" />
           </div>
           <div>
             <label class="field-label" for="su-village">Village</label>
@@ -57,6 +57,20 @@
           <span class="field-label">Crops I usually sell</span>
           <div class="row" style="flex-wrap: wrap; gap: .5rem" id="crops"></div>
         </div>
+        <div id="farmer-id-wrap">
+          <label class="field-label" for="su-idtype">Farmer ID type</label>
+          <select id="su-idtype">
+            <option value="Kisan Credit Card">Kisan Credit Card</option>
+            <option value="PM-KISAN Registration ID">PM-KISAN Registration ID</option>
+            <option value="Land Record">Land Record</option>
+            <option value="Other">Other</option>
+          </select>
+          <label class="field-label mt-3" for="su-idnumber">ID number</label>
+          <input id="su-idnumber" type="text" />
+          <label class="field-label mt-3" for="su-doc">Supporting document photo (optional)</label>
+          <input id="su-doc" type="file" accept="image/*,application/pdf" />
+          <p class="xs muted mt-1">An admin reviews your details before booking is unlocked.</p>
+        </div>
         <div>
           <label class="field-label" for="su-email">Email</label>
           <input id="su-email" type="email" required />
@@ -67,7 +81,24 @@
         </div>
         <button class="btn" type="submit" id="su-submit">Create account</button>
       </form>
+
+      <!-- OTP step (shown after the account is created) -->
+      <form class="card mt-4 stack hidden" id="form-otp">
+        <h2 style="font-size: 1.125rem">Verify your phone</h2>
+        <p class="small muted" id="otp-hint">Sending code…</p>
+        <div>
+          <label class="field-label" for="otp-code">6-digit code</label>
+          <input id="otp-code" class="otp-input" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
+        </div>
+        <p class="small" id="otp-error" style="color: oklch(0.5 0.2 27)"></p>
+        <button class="btn" type="submit" id="otp-submit">Verify and continue</button>
+        <div class="inline-actions">
+          <button type="button" class="link-btn" id="otp-resend">Resend code</button>
+          <button type="button" class="link-btn" id="otp-skip">Skip for now</button>
+        </div>
+      </form>
     </div>
     <script type="module" src="js/auth.js"></script>
   </body>
 </html>
+
