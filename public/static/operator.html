@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Centre queue — Smart Mandi</title>
+    <meta name="description" content="Run today's procurement queue: call the next token, mark arrivals and log payments." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Centre queue — Smart Mandi" />
+    <meta property="og:description" content="Operator dashboard for a procurement centre." />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="page-head" id="page-head"></div>
+
+      <select id="centre-select" aria-label="Choose your centre"></select>
+
+      <div class="card mt-4">
+        <p class="uppercase-label">Now serving</p>
+        <p class="token-big" id="now-serving" style="font-size: 3rem">—</p>
+        <p class="small muted mt-1" id="queue-summary"></p>
+        <button class="btn lg mt-4" id="call-next">📞 Call next token</button>
+      </div>
+
+      <h2 class="mt-8">Booked tokens</h2>
+      <div class="mt-3" id="tokens"></div>
+    </main>
+
+    <!-- ServeDialog replacement -->
+    <div class="modal-backdrop hidden" id="serve-modal">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="serve-title">
+        <h2 id="serve-title" style="font-size: 1.125rem">Log procurement</h2>
+        <div class="stack mt-4">
+          <div>
+            <label class="field-label" for="serve-qty">Quantity received (quintals)</label>
+            <input id="serve-qty" type="text" inputmode="decimal" />
+          </div>
+          <div>
+            <label class="field-label" for="serve-price">Total price (₹)</label>
+            <input id="serve-price" type="text" inputmode="decimal" />
+          </div>
+          <div class="grid2">
+            <button class="btn" id="paid-yes">Paid</button>
+            <button class="btn outline" id="paid-no">Payment pending</button>
+          </div>
+          <button class="btn" id="serve-save">Save &amp; mark served</button>
+          <button class="btn outline" id="serve-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/operator.js"></script>
+  </body>
+</html>
