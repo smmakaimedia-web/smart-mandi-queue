@@ -70,9 +70,12 @@ function renderRoles() {
   rolesBox.querySelectorAll("button").forEach((b) => {
     b.setAttribute("aria-pressed", String(b.dataset.role === selectedRole));
   });
-  document.getElementById("crops-wrap").classList.toggle("hidden", selectedRole !== "farmer");
+  const isFarmer = selectedRole === "farmer";
+  document.getElementById("crops-wrap").classList.toggle("hidden", !isFarmer);
+  document.getElementById("farmer-id-wrap").classList.toggle("hidden", !isFarmer);
 }
 renderRoles();
+
 
 /* --- sign in --- */
 formSignIn.addEventListener("submit", async (e) => {
