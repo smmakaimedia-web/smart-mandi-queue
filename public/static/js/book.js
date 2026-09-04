@@ -1,5 +1,5 @@
 // book.js — replaces src/routes/_authenticated/book.tsx (BookSlot + Chip)
-import { supabase, requireAuth, renderShell, toast } from "./shared.js";
+import { supabase, requireAuth, renderShell, toast, renderVerificationBanner } from "./shared.js";
 
 const auth = await requireAuth();
 if (!auth) throw new Error("not signed in");
@@ -11,8 +11,12 @@ renderShell({
   role: auth.role,
 });
 
+// Blocked (not hidden) until an admin approves the farmer's declaration.
+const isVerified = renderVerificationBanner(auth.profile);
+
 // state (useState replacement)
 const state = { centreId: null, commodityId: null, date: null, slotId: null, slots: [], busy: false };
+
 
 const els = {
   commodities: document.getElementById("commodities"),
