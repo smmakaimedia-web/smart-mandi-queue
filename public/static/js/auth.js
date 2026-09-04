@@ -1,5 +1,9 @@
 // auth.js — replaces src/routes/auth.tsx (AuthPage / SignIn / SignUp)
-import { supabase, toast, getSession, loadProfileAndRole, homeForRole } from "./shared.js";
+// Adds: phone OTP verification (Supabase phone auth) and the farmer self-declaration fields.
+import { supabase, toast, getSession, loadProfileAndRole, homeForRole, renderFooter } from "./shared.js";
+
+renderFooter();
+
 
 const COMMODITIES = ["Wheat", "Paddy", "Maize", "Mustard", "Cotton", "Soybean", "Onion", "Sugarcane"];
 const ROLES = [
