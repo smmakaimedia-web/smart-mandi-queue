@@ -168,3 +168,32 @@ input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1
 .features { display: grid; gap: 1rem; margin-top: 3rem; }
 @media (min-width: 640px) { .features { grid-template-columns: repeat(3, 1fr); } }
 .feature-icon { font-size: 1.5rem; }
+
+/* --- shared footer (rendered by renderFooter() in shared.js) --- */
+.site-footer {
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  background: var(--primary-soft);
+  color: var(--foreground);
+  padding: 2rem 1rem 1.5rem;
+}
+.footer-inner {
+  max-width: 48rem; margin: 0 auto;
+  display: grid; gap: 1.75rem;
+}
+@media (min-width: 640px) { .footer-inner { grid-template-columns: repeat(3, 1fr); } }
+.footer-title { font-size: 1rem; margin-bottom: .625rem; }
+.footer-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; font-size: .875rem; line-height: 1.35; }
+.footer-list a { text-decoration: underline; text-underline-offset: 3px; }
+.footer-note { margin: .625rem 0 0; font-size: .7rem; color: var(--muted-foreground); }
+.footer-bottom { max-width: 48rem; margin: 1.5rem auto 0; font-size: .75rem; color: var(--muted-foreground); text-align: center; }
+
+/* --- OTP + verification --- */
+.otp-input { letter-spacing: .5em; text-align: center; font-size: 1.25rem; }
+.inline-actions { display: flex; gap: .75rem; align-items: center; }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--primary); cursor: pointer; text-decoration: underline; }
+.link-btn:disabled { color: var(--muted-foreground); cursor: not-allowed; text-decoration: none; }
+.status-pill { display: inline-block; border-radius: 999px; padding: .2rem .6rem; font-size: .7rem; font-weight: 700; text-transform: uppercase; }
+.status-pill.pending { background: var(--warning); color: var(--warning-foreground); }
+.status-pill.verified { background: var(--primary); color: var(--primary-foreground); }
+.status-pill.rejected { background: oklch(0.9 0.06 27); color: oklch(0.45 0.2 27); }
