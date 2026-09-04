@@ -137,7 +137,92 @@ export function renderShell({ title, subtitle, profile, role }) {
     head.querySelector(".page-title").textContent = title;
     if (subtitle) head.querySelector(".page-sub").textContent = subtitle;
   }
+  renderFooter();
 }
+
+/* ---------------- footer (shared partial, rendered once per page) ---------------- */
+
+// [PLACEHOLDER] Replace these three values with the real support details.
+export const CONTACT = {
+  email: "support@smartmandi.example", // [PLACEHOLDER]
+  helpline: "+91 00000 00000", // [PLACEHOLDER]
+  address: "Smart Mandi Cell, District Procurement Office, [City], [State] 000000", // [PLACEHOLDER]
+};
+
+// Only links we are confident are the official portals are hyperlinked;
+// anything uncertain stays as plain text on purpose.
+const SCHEMES = [
+  { name: "PM-KISAN", desc: "₹6,000 a year income support for landholding farmer families.", url: "https://pmkisan.gov.in/" },
+  { name: "PMFBY (Fasal Bima)", desc: "Crop insurance against natural loss of yield.", url: "https://pmfby.gov.in/" },
+  { name: "Kisan Credit Card (KCC)", desc: "Short-term credit for crop inputs at subsidised interest.", url: null },
+  { name: "e-NAM", desc: "Online national market to sell produce across mandis.", url: "https://www.enam.gov.in/web/" },
+];
+
+export function renderFooter() {
+  if (document.querySelector(".site-footer")) return;
+  const links = [
+    ["Home", "index.html"],
+    ["Book a Slot", "book.html"],
+    ["My Queue Status", "farmer.html"],
+    ["Operator Login", "auth.html"],
+    ["Admin Login", "auth.html"],
+  ];
+  const footer = document.createElement("footer");
+  footer.className = "site-footer";
+  footer.innerHTML = `
+    <div class="footer-inner">
+      <div>
+        <h3 class="footer-title">Quick Links</h3>
+        <ul class="footer-list">
+          ${links.map(([label, href]) => `<li><a href="${href}">${label}</a></li>`).join("")}
+        </ul>
+      </div>
+      <div>
+        <h3 class="footer-title">Contact</h3>
+        <ul class="footer-list">
+          <li><a href="mailto:${CONTACT.email}">${escapeHtml(CONTACT.email)}</a></li>
+          <li><a href="tel:${CONTACT.helpline.replace(/\s/g, "")}">${escapeHtml(CONTACT.helpline)}</a> · helpline</li>
+          <li>${escapeHtml(CONTACT.address)}</li>
+        </ul>
+        <p class="footer-note">[PLACEHOLDER] contact details — replace before launch.</p>
+      </div>
+      <div>
+        <h3 class="footer-title">Farmer Welfare Schemes</h3>
+        <ul class="footer-list">
+          ${SCHEMES.map(
+            (s) =>
+              `<li>${
+                s.url
+                  ? `<a href="${s.url}" target="_blank" rel="noopener">${escapeHtml(s.name)}</a>`
+                  : `<span class="semibold">${escapeHtml(s.name)}</span>`
+              } — ${escapeHtml(s.desc)}</li>`,
+          ).join("")}
+        </ul>
+      </div>
+    </div>
+    <p class="footer-bottom">Smart Mandi · Slot booking and live queue for procurement centres</p>`;
+  document.body.appendChild(footer);
+}
+
+/* ---------------- farmer verification helpers ---------------- */
+
+export const VERIFICATION_TEXT = {
+  pending: "Your farmer status is pending verification. You can browse, but booking unlocks once an admin approves your details.",
+  rejected: "Your farmer verification was rejected. Please contact the centre or resubmit your ID details to book a slot.",
+};
+
+export function renderVerificationBanner(profile, mountId = "verify-banner") {
+  const mount = document.getElementById(mountId);
+  if (!mount || !profile) return profile?.verification_status === "verified";
+  const status = profile.verification_status ?? "pending";
+  if (status === "verified") {
+    mount.innerHTML = "";
+    return true;
+  }
+  mount.innerHTML = `<div class="banner warn"><span>⚠️</span><span>${escapeHtml(VERIFICATION_TEXT[status] ?? VERIFICATION_TEXT.pending)}</span></div>`;
+  return false;
+}
+
 
 /* ---------------- misc ---------------- */
 
