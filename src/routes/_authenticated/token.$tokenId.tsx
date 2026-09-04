@@ -112,7 +112,9 @@ function TokenPage() {
         <div className="mb-4 flex items-center gap-3 rounded-xl bg-warning p-4 text-warning-foreground">
           <BellRing className="size-6" />
           <p className="font-semibold">
-            Almost your turn — only {wait.ahead} {wait.ahead === 1 ? "farmer" : "farmers"} ahead.
+            {wait.ahead === 0
+              ? "You're next — stay near the counter."
+              : `Almost your turn — only ${wait.ahead} ${wait.ahead === 1 ? "farmer" : "farmers"} ahead.`}
           </p>
         </div>
       ) : null}
