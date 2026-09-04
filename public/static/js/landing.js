@@ -1,5 +1,7 @@
 // landing.js — replaces src/routes/index.tsx
-import { getSession, loadProfileAndRole, homeForRole } from "./shared.js";
+import { getSession, loadProfileAndRole, homeForRole, renderFooter } from "./shared.js";
+
+renderFooter();
 
 const cta = document.getElementById("cta");
 const session = await getSession();
