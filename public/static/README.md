@@ -33,3 +33,19 @@ Notes on things that are not 1:1:
   substitute env vars. Both are public values, as before.
 - The static site keeps its own session storage key, so signing in here is separate from the
   React app's session.
+
+## Added features (footer, OTP, farmer verification)
+
+- **Footer** — one shared `renderFooter()` in `js/shared.js`, appended by `renderShell()` on the
+  signed-in pages and called directly in `landing.js` / `auth.js`. Contact values are marked
+  `[PLACEHOLDER]` in `shared.js` (`CONTACT`). KCC has no hyperlink on purpose (no single official
+  portal confirmed); PM-KISAN, PMFBY and e-NAM link to their .gov.in portals.
+- **Phone OTP** — after the account is created, `auth.js` calls `supabase.auth.updateUser({ phone })`
+  to trigger the SMS, then `verifyOtp({ type: "phone_change" })`. Codes cannot be sent before an
+  account exists (Supabase needs a session to attach the phone), so the OTP step runs immediately
+  after "Create account" and sets `profiles.phone_verified`. Resend has a 30 s cooldown.
+- **Farmer verification** — registration collects ID type, ID number and an optional document that
+  is uploaded to the private `farmer-documents` bucket under `<user-id>/`. `profiles.verification_status`
+  defaults to `pending`; the `book_token` database function refuses to issue a token unless the
+  farmer is `verified`, so blocking is enforced server-side, not only in the UI. Admins approve or
+  reject from the "Pending farmer verifications" section on `admin.html`.

@@ -1,5 +1,9 @@
 // auth.js — replaces src/routes/auth.tsx (AuthPage / SignIn / SignUp)
-import { supabase, toast, getSession, loadProfileAndRole, homeForRole } from "./shared.js";
+// Adds: phone OTP verification (Supabase phone auth) and the farmer self-declaration fields.
+import { supabase, toast, getSession, loadProfileAndRole, homeForRole, renderFooter } from "./shared.js";
+
+renderFooter();
+
 
 const COMMODITIES = ["Wheat", "Paddy", "Maize", "Mustard", "Cotton", "Soybean", "Onion", "Sugarcane"];
 const ROLES = [
@@ -66,9 +70,12 @@ function renderRoles() {
   rolesBox.querySelectorAll("button").forEach((b) => {
     b.setAttribute("aria-pressed", String(b.dataset.role === selectedRole));
   });
-  document.getElementById("crops-wrap").classList.toggle("hidden", selectedRole !== "farmer");
+  const isFarmer = selectedRole === "farmer";
+  document.getElementById("crops-wrap").classList.toggle("hidden", !isFarmer);
+  document.getElementById("farmer-id-wrap").classList.toggle("hidden", !isFarmer);
 }
 renderRoles();
+
 
 /* --- sign in --- */
 formSignIn.addEventListener("submit", async (e) => {
@@ -95,6 +102,8 @@ formSignUp.addEventListener("submit", async (e) => {
   btn.textContent = "Creating account…";
   const email = document.getElementById("su-email").value;
   const password = document.getElementById("su-pass").value;
+  const phone = document.getElementById("su-phone").value.trim();
+  const isFarmer = selectedRole === "farmer";
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -112,19 +121,121 @@ formSignUp.addEventListener("submit", async (e) => {
     btn.textContent = "Create account";
     return toast.success("Check your email to confirm your account, then sign in.");
   }
+
+  // Optional supporting document → private Supabase Storage bucket, keyed by user id.
+  let documentPath = null;
+  const file = document.getElementById("su-doc").files?.[0];
+  if (isFarmer && file) {
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${userId}/id-document.${ext}`;
+    const { error: upErr } = await supabase.storage.from("farmer-documents").upload(path, file, { upsert: true });
+    if (upErr) toast.error(`Document upload failed: ${upErr.message}`);
+    else documentPath = path;
+  }
+
   const [{ error: pErr }, { error: rErr }] = await Promise.all([
     supabase.from("profiles").insert({
       id: userId,
       name: document.getElementById("su-name").value,
-      phone: document.getElementById("su-phone").value,
+      phone,
       village: document.getElementById("su-village").value,
       preferred_commodities: crops,
+      phone_verified: false,
+      id_type: isFarmer ? document.getElementById("su-idtype").value : null,
+      id_number: isFarmer ? document.getElementById("su-idnumber").value.trim() || null : null,
+      document_path: documentPath,
+      // Farmers start as "pending" and need admin approval; staff accounts don't book.
+      verification_status: isFarmer ? "pending" : "verified",
     }),
     supabase.from("user_roles").insert({ user_id: userId, role: selectedRole }),
   ]);
   btn.disabled = false;
   btn.textContent = "Create account";
   if (pErr || rErr) return toast.error(pErr?.message ?? rErr?.message ?? "Could not save your profile");
+
+  if (phone) return startOtp(phone);
   toast.success("Welcome to Smart Mandi");
   window.location.assign(homeForRole(selectedRole));
 });
+
+/* --- phone OTP verification (Supabase phone auth) --- */
+const formOtp = document.getElementById("form-otp");
+const otpHint = document.getElementById("otp-hint");
+const otpError = document.getElementById("otp-error");
+const otpResend = document.getElementById("otp-resend");
+let otpPhone = "";
+let cooldownTimer = null;
+
+function startCooldown(seconds = 30) {
+  clearInterval(cooldownTimer);
+  let left = seconds;
+  otpResend.disabled = true;
+  otpResend.textContent = `Resend code in ${left}s`;
+  cooldownTimer = setInterval(() => {
+    left -= 1;
+    if (left <= 0) {
+      clearInterval(cooldownTimer);
+      otpResend.disabled = false;
+      otpResend.textContent = "Resend code";
+    } else {
+      otpResend.textContent = `Resend code in ${left}s`;
+    }
+  }, 1000);
+}
+
+async function sendCode(phone) {
+  otpError.textContent = "";
+  otpHint.textContent = "Sending code…";
+  // Adds the phone to the signed-in account; Supabase sends the SMS code.
+  const { error } = await supabase.auth.updateUser({ phone });
+  if (error) {
+    otpHint.textContent = `Enter the 6-digit code sent to ${phone}`;
+    otpError.textContent = `Could not send the code: ${error.message}`;
+    otpResend.disabled = false;
+    otpResend.textContent = "Resend code";
+    return;
+  }
+  otpHint.textContent = `Enter the 6-digit code sent to ${phone}`;
+  startCooldown(30);
+}
+
+function startOtp(phone) {
+  otpPhone = phone;
+  formSignUp.classList.add("hidden");
+  formSignIn.classList.add("hidden");
+  document.querySelector(".tabs").classList.add("hidden");
+  formOtp.classList.remove("hidden");
+  void sendCode(phone);
+}
+
+otpResend.addEventListener("click", () => void sendCode(otpPhone));
+
+document.getElementById("otp-skip").addEventListener("click", () => {
+  toast.info("You can verify your phone later.");
+  window.location.assign(homeForRole(selectedRole));
+});
+
+formOtp.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("otp-submit");
+  const code = document.getElementById("otp-code").value.trim();
+  otpError.textContent = "";
+  if (code.length !== 6) {
+    otpError.textContent = "Enter the 6-digit code.";
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Verifying…";
+  const { error } = await supabase.auth.verifyOtp({ phone: otpPhone, token: code, type: "phone_change" });
+  btn.disabled = false;
+  btn.textContent = "Verify and continue";
+  if (error) {
+    otpError.textContent = "That code is wrong or expired. Request a new one.";
+    return;
+  }
+  const { data: sess } = await supabase.auth.getUser();
+  if (sess?.user) await supabase.from("profiles").update({ phone_verified: true }).eq("id", sess.user.id);
+  toast.success("Phone verified");
+  window.location.assign(homeForRole(selectedRole));
+});
+

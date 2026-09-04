@@ -53,26 +53,44 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          document_path: string | null
           id: string
+          id_number: string | null
+          id_type: string | null
           name: string
           phone: string | null
+          phone_verified: boolean
           preferred_commodities: string[]
+          verification_note: string | null
+          verification_status: Database["public"]["Enums"]["verification_status"]
           village: string | null
         }
         Insert: {
           created_at?: string
+          document_path?: string | null
           id: string
+          id_number?: string | null
+          id_type?: string | null
           name: string
           phone?: string | null
+          phone_verified?: boolean
           preferred_commodities?: string[]
+          verification_note?: string | null
+          verification_status?: Database["public"]["Enums"]["verification_status"]
           village?: string | null
         }
         Update: {
           created_at?: string
+          document_path?: string | null
           id?: string
+          id_number?: string | null
+          id_type?: string | null
           name?: string
           phone?: string | null
+          phone_verified?: boolean
           preferred_commodities?: string[]
+          verification_note?: string | null
+          verification_status?: Database["public"]["Enums"]["verification_status"]
           village?: string | null
         }
         Relationships: []
@@ -266,6 +284,7 @@ export type Database = {
       app_role: "farmer" | "operator" | "admin"
       payment_status: "pending" | "paid"
       token_status: "booked" | "arrived" | "served" | "no_show"
+      verification_status: "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -396,6 +415,7 @@ export const Constants = {
       app_role: ["farmer", "operator", "admin"],
       payment_status: ["pending", "paid"],
       token_status: ["booked", "arrived", "served", "no_show"],
+      verification_status: ["pending", "verified", "rejected"],
     },
   },
 } as const

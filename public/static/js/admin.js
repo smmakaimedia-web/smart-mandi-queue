@@ -1,6 +1,6 @@
 // admin.js — replaces src/routes/_authenticated/admin.tsx (AdminDashboard)
 // The recharts BarChart is redrawn as plain CSS bars — same booked/served series.
-import { supabase, requireAuth, renderShell, BUFFER_MINUTES, todayISO, escapeHtml } from "./shared.js";
+import { supabase, requireAuth, renderShell, BUFFER_MINUTES, todayISO, escapeHtml, toast } from "./shared.js";
 
 const auth = await requireAuth();
 if (!auth) throw new Error("not signed in");
@@ -69,3 +69,76 @@ document.getElementById("breakdown").innerHTML = rows
     </div>`,
   )
   .join("");
+
+
+/* ---------- Pending farmer verifications (self-declaration approval workflow) ---------- */
+
+const pendingBox = document.getElementById("pending");
+
+async function renderPending() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, name, phone, phone_verified, village, id_type, id_number, document_path, verification_status, created_at")
+    .eq("verification_status", "pending")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    pendingBox.innerHTML = `<p class="small muted">${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  if (!data?.length) {
+    pendingBox.innerHTML = `<div class="dashed">No farmers are waiting for verification.</div>`;
+    return;
+  }
+
+  pendingBox.innerHTML = "";
+  for (const p of data) {
+    let docLink = "";
+    if (p.document_path) {
+      const { data: signed } = await supabase.storage.from("farmer-documents").createSignedUrl(p.document_path, 300);
+      if (signed?.signedUrl) {
+        docLink = `<p class="small mt-2"><a class="link-btn" href="${signed.signedUrl}" target="_blank" rel="noopener">View submitted document</a></p>`;
+      }
+    }
+    const card = document.createElement("div");
+    card.className = "card tight";
+    card.style.marginBottom = ".75rem";
+    card.innerHTML = `
+      <div class="row">
+        <div class="grow">
+          <p class="semibold" style="margin:0">${escapeHtml(p.name)}</p>
+          <p class="xs muted" style="margin:.15rem 0 0">${escapeHtml(p.village || "—")} · ${escapeHtml(p.phone || "no phone")}
+            ${p.phone_verified ? '<span class="status-pill verified">phone verified</span>' : '<span class="status-pill pending">phone unverified</span>'}</p>
+        </div>
+        <span class="status-pill pending">pending</span>
+      </div>
+      <p class="small mt-2" style="margin-bottom:0">${escapeHtml(p.id_type || "No ID type given")}: <span class="semibold">${escapeHtml(p.id_number || "—")}</span></p>
+      ${docLink}
+      <div class="grid2 mt-3">
+        <button class="btn sm" data-approve="${p.id}">Approve</button>
+        <button class="btn sm outline" data-reject="${p.id}">Reject</button>
+      </div>`;
+    pendingBox.appendChild(card);
+  }
+
+  pendingBox.querySelectorAll("[data-approve], [data-reject]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const approve = btn.hasAttribute("data-approve");
+      const id = btn.getAttribute(approve ? "data-approve" : "data-reject");
+      btn.disabled = true;
+      const { error: uErr } = await supabase
+        .from("profiles")
+        .update({ verification_status: approve ? "verified" : "rejected" })
+        .eq("id", id);
+      if (uErr) {
+        btn.disabled = false;
+        toast.error(uErr.message);
+        return;
+      }
+      toast.success(approve ? "Farmer verified — booking unlocked" : "Farmer rejected");
+      await renderPending();
+    });
+  });
+}
+
+await renderPending();

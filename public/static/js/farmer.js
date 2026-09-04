@@ -1,5 +1,5 @@
 // farmer.js — replaces src/routes/_authenticated/farmer.tsx (FarmerHome)
-import { supabase, requireAuth, renderShell, escapeHtml } from "./shared.js";
+import { supabase, requireAuth, renderShell, escapeHtml, renderVerificationBanner, toast } from "./shared.js";
 
 const auth = await requireAuth();
 if (auth) {
@@ -10,8 +10,20 @@ if (auth) {
     profile: auth.profile,
     role: auth.role,
   });
+  const verified = renderVerificationBanner(auth.profile);
+  if (!verified) {
+    const cta = document.getElementById("book-cta");
+    cta.removeAttribute("href");
+    cta.setAttribute("aria-disabled", "true");
+    cta.style.opacity = ".55";
+    cta.addEventListener("click", (e) => {
+      e.preventDefault();
+      toast.error("Booking unlocks once an admin verifies your farmer details.");
+    });
+  }
   await renderTokens(auth.user.id);
 }
+
 
 const STATUS_LABEL = { booked: "Waiting", arrived: "Called", served: "Served", no_show: "Missed" };
 
