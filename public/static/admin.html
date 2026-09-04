@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>All centres — Smart Mandi</title>
+    <meta name="description" content="Today's tokens, farmers served and average wait time across every procurement centre." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="All centres — Smart Mandi" />
+    <meta property="og:description" content="Cross-centre procurement overview for administrators." />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="page-head" id="page-head"></div>
+      <div class="grid3" id="totals"></div>
+
+      <div class="card mt-4">
+        <h2>Activity per centre</h2>
+        <div class="legend mt-2">
+          <span><i style="background: var(--chart-2)"></i>Booked</span>
+          <span><i style="background: var(--chart-1)"></i>Served</span>
+        </div>
+        <div class="chart" id="chart"></div>
+      </div>
+
+      <h2 class="mt-8">Centre breakdown</h2>
+      <div class="mt-3" id="breakdown"></div>
+    </main>
+    <script type="module" src="js/admin.js"></script>
+  </body>
+</html>

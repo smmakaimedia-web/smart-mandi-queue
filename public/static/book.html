@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Book a slot — Smart Mandi</title>
+    <meta name="description" content="Pick a crop, centre, date and time slot to get your mandi token." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Book a slot — Smart Mandi" />
+    <meta property="og:description" content="Reserve your procurement slot and get a token number." />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="page-head" id="page-head"></div>
+      <div class="stack-lg">
+        <section>
+          <span class="field-label">1. Crop</span>
+          <div class="grid-auto" id="commodities"></div>
+        </section>
+
+        <section>
+          <label class="field-label" for="qty">2. Quantity (quintals)</label>
+          <input id="qty" type="text" inputmode="decimal" class="input-lg" placeholder="e.g. 25" />
+        </section>
+
+        <section>
+          <span class="field-label">3. Procurement centre</span>
+          <div class="grid1" id="centres"></div>
+        </section>
+
+        <section id="when" class="hidden">
+          <span class="field-label">4. Day &amp; time</span>
+          <div class="scroll-x" id="dates"></div>
+          <div class="grid-auto mt-3" id="slots"></div>
+        </section>
+
+        <button class="btn lg" id="confirm" disabled>Confirm booking</button>
+      </div>
+    </main>
+    <script type="module" src="js/book.js"></script>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in — Smart Mandi</title>
+    <meta name="description" content="Sign in or register as a farmer, centre operator or admin." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Sign in — Smart Mandi" />
+    <meta property="og:description" content="Register to book mandi slots and track your queue." />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="narrow">
+      <a class="brand" href="index.html"><span class="brand-mark">🌱</span> Smart Mandi</a>
+
+      <div class="tabs mt-6">
+        <button class="tab" id="tab-signin" aria-selected="true">Sign in</button>
+        <button class="tab" id="tab-signup" aria-selected="false">Register</button>
+      </div>
+
+      <!-- Sign in -->
+      <form class="card mt-4 stack" id="form-signin">
+        <div>
+          <label class="field-label" for="si-email">Email</label>
+          <input id="si-email" type="email" required />
+        </div>
+        <div>
+          <label class="field-label" for="si-pass">Password</label>
+          <input id="si-pass" type="password" required />
+        </div>
+        <button class="btn" type="submit" id="si-submit">Sign in</button>
+      </form>
+
+      <!-- Register -->
+      <form class="card mt-4 stack hidden" id="form-signup">
+        <div>
+          <label class="field-label" for="su-name">Full name</label>
+          <input id="su-name" type="text" required />
+        </div>
+        <div class="grid2">
+          <div>
+            <label class="field-label" for="su-phone">Phone</label>
+            <input id="su-phone" type="tel" />
+          </div>
+          <div>
+            <label class="field-label" for="su-village">Village</label>
+            <input id="su-village" type="text" />
+          </div>
+        </div>
+        <div>
+          <span class="field-label">I am a</span>
+          <div class="grid3" id="roles"></div>
+        </div>
+        <div id="crops-wrap">
+          <span class="field-label">Crops I usually sell</span>
+          <div class="row" style="flex-wrap: wrap; gap: .5rem" id="crops"></div>
+        </div>
+        <div>
+          <label class="field-label" for="su-email">Email</label>
+          <input id="su-email" type="email" required />
+        </div>
+        <div>
+          <label class="field-label" for="su-pass">Password</label>
+          <input id="su-pass" type="password" required minlength="6" />
+        </div>
+        <button class="btn" type="submit" id="su-submit">Create account</button>
+      </form>
+    </div>
+    <script type="module" src="js/auth.js"></script>
+  </body>
+</html>
